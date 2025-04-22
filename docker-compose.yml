@@ -1,0 +1,71 @@
+
+services:
+    alphen_app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                USER_UID: ${UID}
+                USER_GID: ${GID}
+        image: ${APP_IMAGE:-alphen_app_image}
+        container_name: alphen_app
+        restart: unless-stopped
+        depends_on:
+            - alphen_mysql
+            - alphen_redis
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+            - ./docker-config/php/php.ini:/usr/local/etc/php/php.ini
+        networks:
+            - alphen_network
+
+    alphen_webserver:
+        platform: linux/amd64
+        image: nginx:alpine
+        container_name: alphen_webserver
+        restart: unless-stopped
+        depends_on:
+            - alphen_app
+        ports:
+            - "8080:80"
+        volumes:
+            - ./:/var/www
+            - ./docker-config/nginx/:/etc/nginx/conf.d
+        networks:
+            - alphen_network
+
+    alphen_mysql:
+        platform: linux/amd64
+        image: mysql:5.7.22
+        container_name: alphen_mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-alphen_db}
+            MYSQL_USER: ${MYSQL_USER:-alphen_user}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        volumes:
+            - alphen_mysql_data:/var/lib/mysql
+            - ./docker-config/mysql/mysql.cnf:/etc/mysql/my.cnf:ro
+        networks:
+            - alphen_network
+        ports:
+            - "3306:3306"
+
+    alphen_redis:
+        image: redis:7.2-alpine
+        container_name: alphen_redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        networks:
+            - alphen_network
+
+volumes:
+    alphen_mysql_data:
+        driver: local
+
+networks:
+    alphen_network:
+        driver: bridge
