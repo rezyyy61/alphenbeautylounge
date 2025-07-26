@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Str;
 
+$defaultDomain = parse_url(env('APP_URL', 'https://alphenbeauylounge.nl'), PHP_URL_HOST);
+
 return [
 
     /*
@@ -127,9 +129,10 @@ return [
     |
     */
 
+
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_session'
+        Str::slug(env('APP_NAME', 'alphenbeauylounge'), '_') . '_session'
     ),
 
     /*
@@ -156,7 +159,7 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => env('SESSION_DOMAIN', $defaultDomain),
 
     /*
     |--------------------------------------------------------------------------
@@ -169,7 +172,7 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    'secure' => env('SESSION_SECURE_COOKIE', true),
 
     /*
     |--------------------------------------------------------------------------
