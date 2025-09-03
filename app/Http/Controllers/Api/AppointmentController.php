@@ -68,7 +68,7 @@ class AppointmentController extends Controller
             'user_id'    => $user->id,
         ]);
 
-//        Mail::to($appointment->email)->send(new AppointmentConfirmed($appointment));
+        Mail::to($appointment->email)->send(new AppointmentConfirmed($appointment));
 
         $conflictingAppointments = Appointment::whereDate('start_time', $start->toDateString())
             ->where('id', '!=', $appointment->id)
@@ -76,7 +76,7 @@ class AppointmentController extends Controller
             ->get();
 
 
-//        Mail::to('Alphen.beauty.lounge@gmail.com')->send(new AdminAppointmentAlert($appointment, $conflictingAppointments));
+        Mail::to('Alphen.beauty.lounge@gmail.com')->send(new AdminAppointmentAlert($appointment, $conflictingAppointments));
 
         return response()->json(['message' => 'Afspraak succesvol opgeslagen.'], 201);
     }
@@ -87,7 +87,7 @@ class AppointmentController extends Controller
         $endOfDay   = Carbon::parse($day)->endOfDay();
 
         $appointments = Appointment::with('service')
-        ->whereBetween('start_time', [$startOfDay, $endOfDay])
+            ->whereBetween('start_time', [$startOfDay, $endOfDay])
             ->get();
 
         $slots = [];
